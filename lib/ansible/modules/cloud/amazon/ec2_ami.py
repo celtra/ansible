@@ -635,13 +635,17 @@ def get_image_by_id(module, connection, image_id):
         module.fail_json_aws(e, msg="Error retrieving image by image_id")
 
 
-def rename_item_if_exists(dict_object, attribute, new_attribute, child_node=None, type=str):
+def rename_item_if_exists(dict_object, attribute, new_attribute, child_node=None, type=None):
+    value = dict_object.get(attribute)
+    if type is not None:
+        value = type(dict_object.get(attribute))
+
     new_item = dict_object.get(attribute)
     if new_item is not None:
         if child_node is None:
-            dict_object[new_attribute] = type(dict_object.get(attribute))
+            dict_object[new_attribute] = value
         else:
-            dict_object[child_node][new_attribute] = type(dict_object.get(attribute))
+            dict_object[child_node][new_attribute] = value
         dict_object.pop(attribute)
     return dict_object
 
