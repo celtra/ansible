@@ -337,7 +337,7 @@ def get_block_device_mapping(image):
             if 'ebs' in device:
                 ebs = device.get("ebs")
                 bdm_dict_item = {
-                    'size': int(ebs.get("volume_size", 0)),
+                    'size': ebs.get("volume_size"),
                     'snapshot_id': ebs.get("snapshot_id"),
                     'volume_type': ebs.get("volume_type"),
                     'encrypted': ebs.get("encrypted"),
@@ -429,8 +429,8 @@ def create_image(module, connection):
                 device = rename_item_if_exists(device, 'volume_type', 'VolumeType', 'Ebs')
                 device = rename_item_if_exists(device, 'snapshot_id', 'SnapshotId', 'Ebs')
                 device = rename_item_if_exists(device, 'delete_on_termination', 'DeleteOnTermination', 'Ebs')
-                device = rename_item_if_exists(device, 'size', 'VolumeSize', 'Ebs')
-                device = rename_item_if_exists(device, 'volume_size', 'VolumeSize', 'Ebs')
+                device = rename_item_if_exists(device, 'size', 'VolumeSize', 'Ebs', type=int)
+                device = rename_item_if_exists(device, 'volume_size', 'VolumeSize', 'Ebs', type=int)
                 device = rename_item_if_exists(device, 'iops', 'Iops', 'Ebs')
                 device = rename_item_if_exists(device, 'encrypted', 'Encrypted', 'Ebs')
                 block_device_mapping.append(device)
@@ -635,13 +635,13 @@ def get_image_by_id(module, connection, image_id):
         module.fail_json_aws(e, msg="Error retrieving image by image_id")
 
 
-def rename_item_if_exists(dict_object, attribute, new_attribute, child_node=None):
+def rename_item_if_exists(dict_object, attribute, new_attribute, child_node=None, type=str):
     new_item = dict_object.get(attribute)
     if new_item is not None:
         if child_node is None:
-            dict_object[new_attribute] = dict_object.get(attribute)
+            dict_object[new_attribute] = type(dict_object.get(attribute))
         else:
-            dict_object[child_node][new_attribute] = dict_object.get(attribute)
+            dict_object[child_node][new_attribute] = type(dict_object.get(attribute))
         dict_object.pop(attribute)
     return dict_object
 
