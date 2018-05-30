@@ -337,7 +337,7 @@ def get_block_device_mapping(image):
             if 'ebs' in device:
                 ebs = device.get("ebs")
                 bdm_dict_item = {
-                    'size': ebs.get("volume_size"),
+                    'size': int(ebs.get("volume_size", 0)),
                     'snapshot_id': ebs.get("snapshot_id"),
                     'volume_type': ebs.get("volume_type"),
                     'encrypted': ebs.get("encrypted"),
